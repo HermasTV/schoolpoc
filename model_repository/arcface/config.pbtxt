@@ -1,0 +1,16 @@
+name: "arcface"
+platform: "tensorrt_plan"
+input [
+    {
+        name: "data"
+        data_type: TYPE_FP32
+        dims: [-1, 3, 112, 112]
+    }
+]
+output [
+    {
+        name: "683"
+        data_type: TYPE_FP32
+        dims: [1, 512]
+    }
+]

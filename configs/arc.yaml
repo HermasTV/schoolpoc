@@ -1,0 +1,10 @@
+engine: Face Recognizer
+model_name:
+  trt: arcface
+  onnx: arconnx
+backend: tritonserver
+url: localhost:8001
+thresh: 0.7
+verbose: False
+model_info: False
+

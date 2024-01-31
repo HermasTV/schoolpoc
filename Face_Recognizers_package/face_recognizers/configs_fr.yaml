@@ -1,0 +1,15 @@
+# ArcFace resnet50
+large:
+  model:  "../assets/model.onnx" # dont have to provide it unless issue in downloading  
+  device : "cuda" # cpu or gpu
+  thresh : 0.75 # similarity threshold
+# MobileFacenet
+small:
+  model:  "../assets/model.onnx"
+  device : "cuda"
+  thresh : 0.75
+# AdaFace for pedestrian
+pedestrian:
+  model:  "../assets/model.onnx"
+  device : "cuda"
+  thresh : 0.75

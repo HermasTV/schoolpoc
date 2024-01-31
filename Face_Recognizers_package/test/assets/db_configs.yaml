@@ -1,0 +1,5 @@
+basic:
+
+  subjs_path: "./test/assets/verify_db_cropped"
+  db_save_path: "./test/results"
+  db_path: "./test/assets/database.csv"

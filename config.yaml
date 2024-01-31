@@ -1,0 +1,142 @@
+#
+school:
+  debug: False
+  consecutive_frames: 5
+  similarity_thresh: 0.2
+  skip_frame: 2 
+  detector: detector-triton
+  recognizer: arcface-triton
+  streams:
+    entrance0:
+      path: "streams/Rand-3.mp4"
+      location: "entrance"
+    entrance1:
+      path: "streams/Rand-3.mp4"
+      location: "entrance"
+    exit0:
+      path: "streams/Rand-3.mp4"
+      location: "exit"
+    exit1:
+      path: "streams/Rand-3.mp4"
+      location: "exit"
+
+
+  # ONNX DETECTOR CONFIGS
+  detector10-onnx:  
+    model: "./SCRFD/models/scrdfs_10.onnx"
+    thresh: 0.6
+  detector2.5-onnx:  
+    model: "./SCRFD/models/scrfd_2.5.onnx"
+    thresh: 0.6
+
+  # TRT DETECTOR CONFIGS
+  detector2.5-trt:
+    model: "./model_repository/SCRTRT_2/0/model.plan"
+    thresh: 0.6
+  detector10-trt:
+    model: "./SCRFD/models/scrfd10_32_1.engine"
+    thresh: 0.6
+
+  detector2.5-trt-batch:
+    model: "./model_repository/SCRTRT_2/0/model_batched.plan"
+    thresh: 0.6
+  detector10-trt-batch:
+    model: "./SCRFD/models/scrfd10_32_4.engine"
+    thresh: 0.6
+
+  # ONNX RECOGNIZER CONFIGS
+  adaface50-onnx:
+    model: "pedestrian" 
+    DB: "./assets/databases/final_databases/onnx/demo_onnx_adaface_ir50.csv"
+  adaface18-onnx:
+    model: "pedestrian18"
+    DB: "./assets/databases/final_databases/onnx/demo_onnx_adaface_ir18.csv"
+  arcface50-onnx:
+    model: "large"
+    # DB: "./assets/databases/final_databases/onnx/demo_onnx_arcface_r50.csv"
+    DB: "./assets/databases/school_results2.csv"
+  arcface18-onnx:
+    model: "large18"
+    DB: "./assets/databases/final_databases/onnx/demo_onnx_arcface_r18.csv"
+  mobilenet-onnx:
+    model: "small"
+    DB: " "
+
+
+  # TRT RECOGNIZER CONFIGS
+  arcface-r50-trt:
+    model: "./Face_Recognizers_package/FR_models/arcface_sbatch.engine"
+    # DB: "./assets/databases/final_databases/trt_single_input/demo_trt_arcface_r50_.csv"
+    DB: "/data/Biometri-dev/Hermas/school_poc/triton-deploy/demo_triton/arcface-r50-trt.csv"
+
+  arcface-batched-trt:
+    model: "./Face_Recognizers_package/FR_models/arcface_dbatch.engine"
+    DB: " "
+
+  arcface-r18-trt:
+    model: "./Face_Recognizers_package/FR_models/arcface18_sbatch.engine"
+    DB: "./assets/databases/final_databases/trt_single_input/demo_trt_arcface_r18_.csv"
+  arcface-r18-batched-trt:
+    model: "./Face_Recognizers_package/FR_models/arcface18_dbatch.engine"
+    DB:
+
+
+  mobilenet-trt:
+    model: "./Face_Recognizers_package/FR_models/mobilenet_sbatch.engine"
+    DB: "./assets/databases/final_databases/trt_single_input/demo_trt_mobilenet.csv"
+  mobilenet-batched-trt:
+    model: "./Face_Recognizers_package/FR_models/mobilenet_dbatch.engine"
+    DB: " "
+
+
+  adaface-r50-trt:
+    model: "./Face_Recognizers_package/FR_models/adaface50_sbatch.engine"
+    DB: "./assets/databases/final_databases/trt_single_input/demo_trt_adaface_ir50_.csv"
+  adaface-r50-batched-trt:
+    model: "./Face_Recognizers_package/FR_models/adaface50_dbatch.engine"
+    DB: " "
+
+  adaface-r18-trt:
+    model: "./Face_Recognizers_package/FR_models/adaface18_sbatch.engine"
+    DB: "./assets/databases/final_databases/trt_single_input/demo_trt_adaface_ir18_.csv"
+
+  adaface-r18-batched-trt:
+    model: "./Face_Recognizers_package/FR_models/adaface18_dbatch.engine"
+    DB: " "
+  
+  # TRITON CONFIGS
+  detector-triton:
+    engine: Face Detection
+    model_name:
+    two: SCRTRT_2
+    ten: SCRTRT_10
+    backend: tritonserver
+    url: localhost:8001
+    input_size:
+      width: 640
+      height: 640
+    batch_size: 4
+    iou_threshold: 0.35
+    conf_threshold: 0.5
+    nms_thresh: 0.4
+    mean: 127.5
+    fpn_stride:
+      - 8
+      - 16
+      - 32
+    fmc: 3
+    num_anchors: 2
+    model_info: false
+    verbose: false
+
+  arcface-triton:
+    engine: Face Recognizer
+    model_name:
+      trt: arcface
+      onnx: arconnx
+    backend: tritonserver
+    url: localhost:8001
+    thresh: 0.7
+    verbose: False
+    model_info: False
+    DB: "/mnt/d/Tahaluf/School/code/demo_triton/arcface-r50-trt.csv"

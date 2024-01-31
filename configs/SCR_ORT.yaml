@@ -1,0 +1,17 @@
+ORT:
+    engine: "Face Detection"
+    model_name: "faceDetectionSCRFD"
+    weights: "./model_repository/SCRONNX/0/model.onnx"
+    execution: "gpu"
+    input_size: {
+        width: 640,
+        height: 640
+    }
+    batch_size: 1
+    conf_threshold: 0.5
+    nms_thresh: 0.4
+    mean: 127.5
+    fpn_stride: [8,16,32]
+    fmc: 3
+    num_anchors: 2 
+

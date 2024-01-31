@@ -1,0 +1,20 @@
+# ignore these configs unless there are an issue or want to do rollback
+# the following models versions are the latest.
+env:
+  MLFLOW_S3_ENDPOINT_URL: "http://minio.tahaluf.ae:9000/"
+  AWS_ACCESS_KEY_ID: "jenkins_minio_user"
+  AWS_SECRET_ACCESS_KEY: "1234567890"
+
+mlflow_uri: http://mlflow.tahaluf.ae/
+
+large:
+  version: 1
+  model_name: arcface_r50
+
+pedestrian:
+  version: 1
+  model_name: adaface-onnx
+
+small:
+  version: 1
+  model_name: mobilefacenet

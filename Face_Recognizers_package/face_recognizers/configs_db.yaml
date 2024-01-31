@@ -1,0 +1,5 @@
+basic:
+
+  subjs_path: "db_images_dir/"
+  db_save_path: "db_dir/"
+  db_path: "database.csv"

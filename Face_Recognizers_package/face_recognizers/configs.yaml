@@ -1,0 +1,13 @@
+#example of arcface
+arcface:
+  weights:  "../assets/arcface.onnx"
+  device : "cpu"
+  subjs_path:
+  db_path: "../assets/database.csv"
+
+#example for adaface
+adaface:
+  weights:  "../assets/adaface.onnx"
+  device : "cpu"
+  subjs_path:
+  db_path: "../assets/database_adaface.csv"
