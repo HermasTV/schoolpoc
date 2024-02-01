@@ -3,14 +3,16 @@ FROM nvcr.io/nvidia/tritonserver:23.09-py3
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the model_repository directory into the container
-COPY model_repository /models
+# copy all files to the working directory
+COPY . /app
 
-# Copy the SCRFD/models directory into the container
-COPY onnx-models /onnx-models
+# add universe repository
+RUN add-apt-repository universe 
 
-# copy the models converter script into the container
-COPY convert_run_models.sh /app/convert_run_models.sh
+RUN apt-get update && apt-get install ffmpeg  -y
+
+# install requirements 
+RUN pip install --ignore-installed -r /app/requirements.txt
 
 # run the models converter script
 RUN chmod 777 /app/convert_run_models.sh
@@ -20,5 +22,7 @@ CMD ["/bin/bash", "-c", "/app/convert_run_models.sh"]
 
 # to build the docker image run the following command
 # docker build -t tritonserver:23.09-py3 .
-# to run the docker image run the following command
+# to run the docker image run the following command and mount model_repository to the container
 # docker run --gpus all -it --rm --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -p8000:8000 -p8001:8001 -p8002:8002 tritonserver:23.09-py3
+# to run the docker image run the following command and mount model_repository to the container
+# docker run --gpus all -it --rm --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}/model_repository:/app/model_repository tritonserver:23.09-py3

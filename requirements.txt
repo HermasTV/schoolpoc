@@ -16,4 +16,5 @@ setuptools
 tensorrt
 tritonclient
 tensorrt_bindings
+opencv-python-headless
 Face_Recognizers_package/

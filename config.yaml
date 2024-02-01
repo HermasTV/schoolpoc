@@ -139,4 +139,4 @@ school:
     thresh: 0.7
     verbose: False
     model_info: False
-    DB: "/mnt/d/Tahaluf/School/code/demo_triton/arcface-r50-trt.csv"
+    DB: "./arcface-r50-trt.csv"
