@@ -26,7 +26,7 @@ class CameraStream:
             print("Stream initialized", self.name, self.location, self.fps)
 
         if visualize:
-            self.outstream = cv2.VideoWriter('streams/'+self.name+'_out.avi', cv2.VideoWriter_fourcc(*'FMP4'), self.fps, (self.frame.shape[1], self.frame.shape[0]))
+            self.outstream = cv2.VideoWriter('logs/'+self.name+'_out.avi', cv2.VideoWriter_fourcc(*'MP4V'), self.fps, (self.frame.shape[1], self.frame.shape[0]))
 
     def update_frame(self):
         # if the thread indicator variable is set, stop the thread
@@ -34,22 +34,17 @@ class CameraStream:
             return
         # otherwise, read the next frame from the stream
         self.grabbed, self.frame = self.stream.read()
-        # print(self.frame.shape)
         if not self.grabbed:
             self.stop()
             return
-        # reduce the frame size to 1/4 for faster processing
-        self.frame = cv2.resize(self.frame, (0, 0), fx=0.25, fy=0.25)
-        # print(self.frame.shape)
         self.frame_count += 1
         self.time_stamp = time.time()
-        # print("processed frame", self.frame_count, self.name, self.location)
 
     def stop(self):
         # indicate that the thread should be stopped
         self.stopped = True
         self.stream.release()
-        print("Stream stopped")
+
     def is_stopped(self):
         return self.stopped
 

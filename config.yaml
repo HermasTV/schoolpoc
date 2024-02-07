@@ -1,23 +1,23 @@
 #
 school:
-  debug: False
-  consecutive_frames: 5
+  debug: false
+  consecutive_frames: 2
   similarity_thresh: 0.2
-  skip_frame: 2 
+  skip_frame: 1
   detector: detector-triton
   recognizer: arcface-triton
   streams:
     entrance0:
-      path: "streams/Rand-3.mp4"
+      path: "streams/Rand-4.mp4"
       location: "entrance"
     entrance1:
-      path: "streams/Rand-3.mp4"
+      path: "streams/Rand-4.mp4"
       location: "entrance"
     exit0:
-      path: "streams/Rand-3.mp4"
+      path: "streams/Rand-4.mp4"
       location: "exit"
     exit1:
-      path: "streams/Rand-3.mp4"
+      path: "streams/Rand-4.mp4"
       location: "exit"
 
 

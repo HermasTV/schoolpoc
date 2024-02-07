@@ -1,18 +1,19 @@
 
+import os
 import cv2
 import csv
 import time
 import datetime
 import numpy as np
 import pdb
-
+import pytz
 from sklearn.metrics.pairwise import cosine_similarity
 
 from typing import Any
 import traceback
 Array= np.array
 
-import utils.face_utils as utils
+from utils import face_utils
 import utils.utils as utils_ 
 from models import Models
 from streams import CameraStream
@@ -44,14 +45,12 @@ class school:
         self.index = faiss.IndexFlatL2(512)
         self.faces = self.faces.astype('float32')
         # print magnitudes of a sample face embedding
-        self.faces_normalized = self.faces / np.linalg.norm(self.faces, axis=1,keepdims=True)
-        self.faces_normalized = self.faces_normalized.astype('float32')
         
         print("faces shape", self.faces.shape)
         # use gpu
         # self.res = faiss.StandardGpuResources()
         # self.index = faiss.index_cpu_to_gpu(self.res, 0, self.index)
-        self.index.add(self.faces_normalized)
+        self.index.add(self.faces)
         
     def __init_streams(self)-> None:
         # streams_data is dict of streams dicts 
@@ -101,18 +100,18 @@ class school:
         return student[0][0]
     
     
-    def embed(self,frame: np.ndarray):
+    def embed(self,stream : CameraStream, stream_id : int):
 
-        detections = self.models.detector.predict(frame)
+        detections = self.models.detector.predict(stream.frame)
         
         with ThreadPoolExecutor(max_workers=4) as executor:
             # perform face recognition for each face in each stream
-            embeddings = executor.map(self.align_and_embedd, [frame]*len(detections[1]), detections[1], range(len(detections[1])))
+            embeddings = executor.map(self.align_and_embedd, [stream]*len(detections[1]), detections[0],detections[1], [stream_id]*len(detections[1]))
 
         return embeddings
 
         
-    def align_and_embedd(self, frame: np.ndarray, landmarks , s : int):
+    def align_and_embedd(self,stream : CameraStream, detections,landmarks , s : int):
         """
         Args:
             frame: Array, input frame to be proccessed 
@@ -121,45 +120,67 @@ class school:
         Output:
             none
         """
+        # print("s : ", s)
         # align face
-        aligned_frame= self.models.aligner.align(img=frame,
+        aligned_frame= self.models.aligner.align(img=stream.frame,
                                                 landmarks= np.array(landmarks))
         # embed face
         embeds = self.models.recognizer.predict(aligned_frame)
         # Find face id
         student_number = self.find_faiss(embeds)
-        # print(self.faces[studentId].shape)
-        # print(embeds.shape)
+
         # calculate similarity between embeds and self.faces[studentId]
         sim = cosine_similarity(embeds.reshape(1, -1), self.faces[student_number].reshape(1, -1))
         sim = sim[0][0]
         studentId = self.ids[student_number]
+        # keep only alphabetical characters and first occrance of "-"
+        studentId = "-".join(studentId.split("-")[0:2])
+        # print(studentId)
         # check if face is known
         if sim>= 0.5:
+            
+            #  visualize the face and the name
+            # print(studentId, sim)
+            if self.config["debug"]:
+                # print("debug mode ...")
+                face_utils.boundboxes(stream.frame, detections, studentId, sim)
             # add face to known faces
-            # print("known", studentId, sim)
             if studentId in self.streams[s].presence:
                 self.streams[s].presence[studentId] += 1
             else:
                 self.streams[s].presence[studentId] = 1
             
-
             if self.streams[s].presence[studentId] >= self.config["consecutive_frames"] and \
                             ((studentId not in self.login and self.streams[s].location=="entrance") or \
                             (studentId not in self.logout and self.streams[s].location=="exit")):
                 if self.streams[s].location == 'entrance':
                     self.login.add(studentId)
                 else:
-                    self.logout.add(studentId)
-                current_datetime= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                with open("./assets/logs.csv", mode='a', newline='') as file:
+                    self.logout.add(studentId)               
+                
+                timezone = pytz.timezone('Africa/Cairo')
+                date= datetime.datetime.now(tz=timezone)
+                # time in hours and minutes and seconds
+                current_datetime = date.strftime("%H:%M:%S")
+                # date in day-month-year
+                current_date = date.strftime("%d-%m-%Y")
+                face_img_path = f"./logs/faces/{current_date}/{studentId}_{self.streams[s].name}.jpg"
+                with open(f"./logs/{current_date}.csv", mode='a', newline='') as file:
                     writer = csv.writer(file)
-                    writer.writerow([str(current_datetime), str(studentId), str(self.streams[s].name)])
-
+                    writer.writerow([str(current_datetime), str(studentId), str(self.streams[s].name), face_img_path])
+                # save image to logs file in /logs/faces/date/studentId_streamId.jpg
+                # first create the directory if it doesn't exist
+                os.makedirs(f"./logs/faces/{current_date}", exist_ok=True)
+                cv2.imwrite(face_img_path, aligned_frame)
         else:
             
             self.unknown["unknown"+ str(len(self.unknown))]= embeds
-        
+            if self.config["debug"]:
+                # print("debug mode ...")
+                face_utils.boundboxes(stream.frame, detections, 'u', sim)
+        # if self.config["debug"]:
+        #     face_utils.dashboard(stream.frame, stream.frame.shape[1], self.login, self.logout)
+
     
     def fetch_frame(self, stream_id):
         '''
@@ -195,5 +216,8 @@ class school:
                 return None
             # Run FD for Single Stream
             if stream.frame_count % self.config["skip_frame"]==0:
-                self.embed(stream.frame)
-            # self.embed(stream.frame)
+                self.embed(stream,stream_id)
+                # write frame to output
+            if self.config["debug"]:
+                
+                stream.write_frame()
