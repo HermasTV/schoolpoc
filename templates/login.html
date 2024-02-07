@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Custom CSS for the background and login form -->
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+
+    .bg {
+      /* The image used */
+      background-image: url("https://mir-s3-cdn-cf.behance.net/project_modules/disp/ae112d72568813.5bec1c025fbcc.gif");
+
+      /* Full height */
+      height: 100%;
+
+      /* Center and scale the image nicely */
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      position: relative;
+    }
+
+    .login-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.7); /* Slight white background */
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    input[type=text], input[type=password] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 20px 0;
+      display: inline-block;
+      border: none;
+      background: #f1f1f1;
+    }
+
+    button {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+
+  <title>Login</title>
+</head>
+<body>
+
+<div class="bg">
+  <div class="login-container">
+    <h2>Login</h2>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <form method="POST" action="{{ url_for('login') }}">
+      <div>
+        <input type="text" name="username" placeholder="Username" required>
+      </div>
+      <div>
+        <input type="password" name="password" placeholder="Password" required>
+      </div>
+      <div>
+        <button type="submit">Login</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

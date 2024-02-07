@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS for additional styling -->
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+
+    .bg {
+      background: #f8f9fa;  /* Light background */
+      padding: 20px;
+    }
+
+    .attendance-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      padding: 15px;
+      transition: transform .2s; /* Animation */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .attendance-card:hover {
+      transform: scale(1.02); /* Slight pop effect on hover */
+    }
+
+    .student-image {
+      height: auto;  /* Adjust the height automatically */
+      width: 70px;  /* Width adjusted */
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+
+    .logging-image {
+      border-radius: 50%; /* Circular border */
+      height: 50px; /* Adjusted height */
+      width: 50px; /* Adjusted width */
+      object-fit: cover; /* Ensure the image is scaled properly */
+      margin-left: 15px; /* Margin for visual spacing */
+    }
+
+    .info {
+      display: flex;
+      align-items: center;
+    }
+
+    .info-text {
+      flex-grow: 1;
+    }
+
+    .info-text h5 {
+      margin: 0;
+    }
+
+    .info-text p {
+      margin: 0;
+      color: #666;
+      margin-right: 15px;
+    }
+
+    .timestamp {
+      text-align: right;
+      color: #666;
+      margin-right: 15px;
+    }
+
+    .image-container {
+      display: flex;
+      align-items: center;
+    }
+  </style>
+
+  <title>Today's Attendance</title>
+</head>
+<body>
+  <div class="bg">
+    <div class="container mt-5">
+      <h2>Today's Attendance</h2>
+      <div class="list-group">
+        {% for record in attendance_records %}
+          <div class="list-group-item list-group-item-action flex-column align-items-start attendance-record">
+            <div class="info">
+              <img src="{{ record.student_image }}" alt="Student Image" class="student-image">
+              <div class="info-text">
+                <h5 class="mb-1">{{ record.student_name }}</h5>
+                <p>Class: {{ record.student_class }}</p>
+                <p>Camera: {{ record.camera }}</p>
+              </div>
+              <div class="image-container">
+                <small class="timestamp">{{ record.time_of_entrance }}</small>
+                <img src="{{ record.logging_image }}" alt="Logging Image" class="logging-image">
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <p>No attendance records for today.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
+howev

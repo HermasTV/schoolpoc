@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS for additional styling -->
+    <style>
+      body { background-color: #f8f9fa; }
+      .container { margin-top: 50px; }
+      h2 { margin-bottom: 20px; }
+      .table { box-shadow: 0 0 10px rgba(187, 18, 18, 0.1); }
+    </style>
+
+    <title>School Attendance Log</title>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">School Attendance System</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <!-- Add other navigation items here if necessary -->
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+      <h2>School Attendance Log</h2>
+      <!-- Embed the log table here -->
+      {{ log_table|safe }}
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  
+    <script>
+        let lastModTime = {{ mod_time }};  // Get initial last modification time from the server
+        
+        setInterval(() => {
+          fetch('/file-mod-time')  // Check the last modification time
+            .then(response => response.json())
+            .then(data => {
+              if (data.mod_time > lastModTime) {
+                lastModTime = data.mod_time;
+                location.reload();  // Reload the page if the file was updated
+              }
+            })
+            .catch(error => console.error('Error checking file modification time:', error));
+        }, 5000);  // Check every 5 seconds
+      </script>
+      
+</body>
+</html>
+
