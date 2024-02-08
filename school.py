@@ -7,7 +7,6 @@ import glob
 import time
 import utils_e as utils_
 import numpy as np
-import pdb
 from sklearn.metrics.pairwise import cosine_similarity
 import csv
 import datetime

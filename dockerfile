@@ -23,6 +23,6 @@ CMD ["/bin/bash", "-c", "/app/convert_run_models.sh"]
 # to build the docker image run the following command
 # docker build -t tritonserver:23.09-py3 .
 # to run the docker image run the following command and mount model_repository to the container
-# docker run --gpus all -it --rm --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -p8000:8000 -p8001:8001 -p8002:8002 tritonserver:23.09-py3
-# to run the docker image run the following command and mount model_repository to the container
-# docker run --gpus all -it --rm --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}/:/app/ tritonserver:23.09-py3
+# docker run --name school --gpus all -it --rm --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}/:/app/ tritonserver:23.09-py3
+# then you can run the following command to run client
+# docker exec -it school python3 client.py

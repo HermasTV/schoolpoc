@@ -1,23 +1,25 @@
 #
 school:
   debug: false
+  # consecutive_frames is the number of times a face must be recognized before it is logged
   consecutive_frames: 2
-  similarity_thresh: 0.2
-  skip_frame: 1
-  detector: detector-triton
-  recognizer: arcface-triton
+  similarity_thresh: 0.5
+  skip_frame: 1 # 1 for no skip, 2 for every other frame, 3 for every third frame, etc.
+  timezone: "Africa/Cairo"
+  detector: detector-triton # best detector so far
+  recognizer: arcface-triton # best recognizer so far
   streams:
     entrance0:
-      path: "streams/Rand-4.mp4"
+      path: "streams/Rand-3.mp4"
       location: "entrance"
     entrance1:
-      path: "streams/Rand-4.mp4"
+      path: "streams/Rand-3.mp4"
       location: "entrance"
     exit0:
-      path: "streams/Rand-4.mp4"
+      path: "streams/Rand-3.mp4"
       location: "exit"
     exit1:
-      path: "streams/Rand-4.mp4"
+      path: "streams/Rand-3.mp4"
       location: "exit"
 
 

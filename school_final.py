@@ -33,23 +33,16 @@ class school:
         '''
         self.models = models
         self.config = utils_.load_configs("../config.yaml")
-        print("Models loaded successfully !")
         self.csv= self.config[self.config["recognizer"]]["DB"]
         self.ids, self.faces= utils_.read_embd(self.csv)
         self.num_students= set()
-        self.known= {} # why is this here?
         self.unknown= {}
         self.__init_streams()
         self.login= set()
         self.logout= set()
+        # create faiss index and add faces embeddings to it
         self.index = faiss.IndexFlatL2(512)
         self.faces = self.faces.astype('float32')
-        # print magnitudes of a sample face embedding
-        
-        print("faces shape", self.faces.shape)
-        # use gpu
-        # self.res = faiss.StandardGpuResources()
-        # self.index = faiss.index_cpu_to_gpu(self.res, 0, self.index)
         self.index.add(self.faces)
         
     def __init_streams(self)-> None:
@@ -58,7 +51,7 @@ class school:
         streams_data = self.config["streams"]
         self.streams = [CameraStream(src=streams_data[stream]["path"],
                                       name=stream, location=streams_data[stream]["location"],
-                                      visualize=True)
+                                      visualize=self.config["debug"])
                                         for stream in streams_data]
     
     def find(self, embedding)-> Any:
@@ -72,13 +65,10 @@ class school:
         '''
         # Ensure the input embedding is 2D (1, num_features)
         embedding = embedding.reshape(1, -1)
-
         # Compute cosine similarity between the input embedding and all known embeddings
         similarity = cosine_similarity(embedding, self.faces)
-
         # Find the index of the most similar face
         ind = np.argmax(similarity)
-
         # Return the ID and the corresponding similarity score
         return self.ids[ind], similarity[0, ind]
     
@@ -93,7 +83,6 @@ class school:
         '''
         # Ensure the input embedding is 2D (1, num_features)
         embedding = embedding.reshape(1, -1).astype('float32')
-
         # Compute cosine similarity between the input embedding and all known embeddings
         _,student = self.index.search(embedding, 1)
         # retun only the index of the most similar face
@@ -103,7 +92,7 @@ class school:
     def embed(self,stream : CameraStream, stream_id : int):
 
         detections = self.models.detector.predict(stream.frame)
-        
+        # TODO: Optimize this part later
         with ThreadPoolExecutor(max_workers=4) as executor:
             # perform face recognition for each face in each stream
             embeddings = executor.map(self.align_and_embedd, [stream]*len(detections[1]), detections[0],detections[1], [stream_id]*len(detections[1]))
@@ -120,45 +109,41 @@ class school:
         Output:
             none
         """
-        # print("s : ", s)
         # align face
         aligned_frame= self.models.aligner.align(img=stream.frame,
                                                 landmarks= np.array(landmarks))
         # embed face
         embeds = self.models.recognizer.predict(aligned_frame)
-        # Find face id
+        # Find nearest face in database using faiss
         student_number = self.find_faiss(embeds)
-
-        # calculate similarity between embeds and self.faces[studentId]
+        # get cosine similarity to use the threshold
         sim = cosine_similarity(embeds.reshape(1, -1), self.faces[student_number].reshape(1, -1))
         sim = sim[0][0]
         studentId = self.ids[student_number]
-        # keep only alphabetical characters and first occrance of "-"
+        # TODO: change in case of change in studentId format
         studentId = "-".join(studentId.split("-")[0:2])
-        # print(studentId)
         # check if face is known
-        if sim>= 0.5:
+        if sim>= self.config["similarity_thresh"]:
             
-            #  visualize the face and the name
-            # print(studentId, sim)
             if self.config["debug"]:
-                # print("debug mode ...")
                 face_utils.boundboxes(stream.frame, detections, studentId, sim)
             # add face to known faces
             if studentId in self.streams[s].presence:
                 self.streams[s].presence[studentId] += 1
             else:
                 self.streams[s].presence[studentId] = 1
-            
+            # only add student to login or logout if he is not already there and
+            # he has been detected for a number of consecutive frames
             if self.streams[s].presence[studentId] >= self.config["consecutive_frames"] and \
                             ((studentId not in self.login and self.streams[s].location=="entrance") or \
                             (studentId not in self.logout and self.streams[s].location=="exit")):
-                if self.streams[s].location == 'entrance':
+                # TODO: change in case of multiple entrances names
+                if self.streams[s].location == 'entrance': 
                     self.login.add(studentId)
                 else:
                     self.logout.add(studentId)               
                 
-                timezone = pytz.timezone('Africa/Cairo')
+                timezone = pytz.timezone(self.config["timezone"])
                 date= datetime.datetime.now(tz=timezone)
                 # time in hours and minutes and seconds
                 current_datetime = date.strftime("%H:%M:%S")
@@ -173,13 +158,10 @@ class school:
                 os.makedirs(f"./logs/faces/{current_date}", exist_ok=True)
                 cv2.imwrite(face_img_path, aligned_frame)
         else:
-            
-            self.unknown["unknown"+ str(len(self.unknown))]= embeds
             if self.config["debug"]:
-                # print("debug mode ...")
                 face_utils.boundboxes(stream.frame, detections, 'u', sim)
-        # if self.config["debug"]:
-        #     face_utils.dashboard(stream.frame, stream.frame.shape[1], self.login, self.logout)
+        if self.config["debug"]:
+            face_utils.dashboard(stream.frame, stream.frame.shape[1], self.login, self.logout)
 
     
     def fetch_frame(self, stream_id):
