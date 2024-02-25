@@ -83,4 +83,4 @@ def file_mod_time():
     return jsonify({'mod_time': get_file_modification_time()})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0",debug=True)

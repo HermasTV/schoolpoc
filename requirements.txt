@@ -17,4 +17,5 @@ tensorrt
 tritonclient
 tensorrt_bindings
 opencv-python-headless
+flask==2.2.5
 Face_Recognizers_package/

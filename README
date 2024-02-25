@@ -1,0 +1,29 @@
+# School PoC Project
+
+## Description
+
+This project implements a proof of concept (PoC) for a facial recognition system designed for schools. It aims to enhance security and streamline student attendance processes by automatically identifying students through camera feeds at various entry and exit points.
+
+## Installation
+
+### Build Using Docker 
+
+First You need yoy run the run the docker build for the server.
+
+```bash 
+docker build -t Attendance_System .
+```
+
+Then you can run the Triton Server buy executing the following command :   
+```bash
+docker run --name attendace --gpus all -it --rm --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}/:/app/ attendance-system
+```
+
+Then To run the Client Run : 
+```bash
+docker exec -it attendace python3 client.py
+```
+TO Run the Dashboard/WEB APP Run :
+```bash
+docker exec -it attendace python3 dashboard.py
+```
